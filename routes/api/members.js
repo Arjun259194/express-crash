@@ -5,6 +5,7 @@ const members = require('../../Members')
 
 const router = express.Router()
 
+
 // Gets all members
 router.get('/', (req, res) => res.json(members)) // sending all member data as json in responce
 
@@ -42,7 +43,48 @@ router.post('/', (req, res) => {
   members.push(newMember)
 
   // send responce with all members data as json
-  res.json(members)
+  // res.json(members)
+
+  // OR
+
+  // redirecting to homepage
+  res.redirect('/')
+})
+
+// Update member
+router.put('/:id', (req, res) => {
+  // checking if member with given id is available or not
+  const found = members.some(member => member.id === parseInt(req.params.id)) // true if found false if not
+
+  if (found) {
+    const updMember = req.body
+    members.forEach(member => {
+      // finding member to update
+      if (member.id === parseInt(req.params.id)) {
+        // changing member name/email if they ware sent in request
+        member.name = updMember.name ? updMember.name : member.name
+        member.email = updMember.email ? updMember.email : member.email
+
+        // sending responce to user
+        res.json({ message: "Member updated", member })
+      }
+    })
+  } else {
+    // sending https status 400 (bad request) as responce with message
+    res.status(400).json({ msg: `No member found with id of ${req.params.id}` })
+  }
+})
+
+// Delete member
+router.delete('/:id', (req, res) => {
+  const found = members.some(member => member.id === parseInt(req.params.id))
+
+  if (found) {
+    res.json({ messagea: "Member deleted", member: members.filter(member => member.id !== parseInt(req.params.id)) })
+    console.log(members);
+  } else {
+    res.status(400).json({ message: `No member found with id of ${req.params.id}` })
+  }
 })
 
 module.exports = router
